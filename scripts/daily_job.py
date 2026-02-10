@@ -1,6 +1,7 @@
 # scripts/daily_job.py
 import os
 import random
+from pathlib import Path
 from datetime import datetime
 
 import config
@@ -22,8 +23,8 @@ if openai_key:
 
 
 def _pick_random_background() -> str:
-    """config.BACKGROUNDS_DIR(assets/images) 안에서 랜덤 배경 1장 선택."""
-    folder = config.BACKGROUNDS_DIR
+    """assets/images 폴더에서 랜덤 배경 1장 선택."""
+    folder = Path(config.BASE_DIR) / "assets" / "images"
     if not folder.exists():
         raise RuntimeError(f"배경 폴더가 없습니다: {folder}")
 
