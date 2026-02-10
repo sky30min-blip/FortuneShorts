@@ -1,26 +1,45 @@
+# 환경변수
+.env
+.env.local
+
+# API 인증
+client_secrets.json
+token.pickle
+
+# 생성 파일
+output/
+thumbnails/
+*.mp4
+*.jpg
+*.png
+*.wav
+
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-.env
-.venv
+*$py.class
+*.so
+.Python
 venv/
 env/
+.venv
+
+# Database
+database/*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
 
 # IDE
-.idea/
 .vscode/
+.idea/
 *.swp
 *.swo
-
-# Output / local
-*.mp4
-*.wav
-output/
-downloads/
-*.log
 
 # Secrets
 secrets.py
 *.key
-.env.local
+downloads/
+*.log

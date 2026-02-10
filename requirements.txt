@@ -1,4 +1,11 @@
-# 오늘의 운세 숏츠 - 필요 시 추가
-# streamlit>=1.28.0
-# openai>=1.0.0
-# google-generativeai>=0.3.0
+# 운세 Shorts 자동 생성기 - 의존성
+streamlit==1.31.0
+moviepy==1.0.3
+pillow>=10.2.0
+opencv-python>=4.9.0.80
+openai>=1.12.0
+google-auth>=2.27.0
+google-auth-oauthlib>=1.2.0
+google-api-python-client>=2.116.0
+python-dotenv>=1.0.1
+pandas>=2.2.0
