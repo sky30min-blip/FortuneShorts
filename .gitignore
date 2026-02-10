@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Output / local
+*.mp4
+*.wav
+output/
+downloads/
+*.log
+
+# Secrets
+secrets.py
+*.key
+.env.local
