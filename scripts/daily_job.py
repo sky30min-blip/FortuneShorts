@@ -13,7 +13,6 @@ from modules.metadata_generator import (
     set_openai_api_key,
 )
 from modules.youtube_uploader import upload_video
-from modules.image_generator import get_backgrounds_dir, IMAGE_EXTENSIONS
 
 # GitHub Actions 시크릿에서 API 키 가져오기
 openai_key = os.getenv("OPENAI_API_KEY", "") or (config.OPENAI_API_KEY or "")
@@ -23,18 +22,21 @@ if openai_key:
 
 
 def _pick_random_background() -> str:
-    """assets/images 폴더에서 랜덤 배경 1장 선택."""
-    folder = get_backgrounds_dir()
+    """config.BACKGROUNDS_DIR(assets/images) 안에서 랜덤 배경 1장 선택."""
+    folder = config.BACKGROUNDS_DIR
     if not folder.exists():
         raise RuntimeError(f"배경 폴더가 없습니다: {folder}")
+
+    exts = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
     candidates = [
-        p
-        for p in folder.iterdir()
-        if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS
+        p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in exts
     ]
     if not candidates:
         raise RuntimeError(f"배경 폴더에 이미지가 없습니다: {folder}")
-    return str(random.choice(candidates))
+
+    chosen = random.choice(candidates)
+    print("🖼️ 선택된 배경:", chosen)
+    return str(chosen)
 
 
 def main():
