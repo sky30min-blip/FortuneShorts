@@ -1,5 +1,6 @@
 # scripts/daily_job.py
 import os
+import random
 from datetime import datetime
 
 import config
@@ -12,7 +13,7 @@ from modules.metadata_generator import (
     set_openai_api_key,
 )
 from modules.youtube_uploader import upload_video
-from modules.image_generator import get_random_background_from_folder
+from modules.image_generator import get_backgrounds_dir, IMAGE_EXTENSIONS
 
 # GitHub Actions 시크릿에서 API 키 가져오기
 openai_key = os.getenv("OPENAI_API_KEY", "") or (config.OPENAI_API_KEY or "")
@@ -21,14 +22,27 @@ if openai_key:
     set_openai_api_key(openai_key)
 
 
+def _pick_random_background() -> str:
+    """assets/images 폴더에서 랜덤 배경 1장 선택."""
+    folder = get_backgrounds_dir()
+    if not folder.exists():
+        raise RuntimeError(f"배경 폴더가 없습니다: {folder}")
+    candidates = [
+        p
+        for p in folder.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS
+    ]
+    if not candidates:
+        raise RuntimeError(f"배경 폴더에 이미지가 없습니다: {folder}")
+    return str(random.choice(candidates))
+
+
 def main():
     # 1) 오늘 날짜
     today = datetime.now().strftime("%m월 %d일")
 
     # 2) 배경 이미지 (이미지 폴더에서 랜덤)
-    bg = get_random_background_from_folder()
-    if not bg:
-        raise RuntimeError("assets/images 폴더에 배경 이미지가 없습니다.")
+    background_path = _pick_random_background()
 
     # 3) 운세 3줄 생성
     fortune_texts = {
@@ -47,7 +61,7 @@ def main():
 
     # 6) 영상 생성
     video_path = generate_fortune_video(
-        background_path=str(bg),
+        background_path=background_path,
         puzzle_shape="퍼즐",
         direction="위→아래",
         fortune_texts=fortune_texts,
