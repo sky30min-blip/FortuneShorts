@@ -122,6 +122,35 @@ JSON 형식만 출력:
         return f"{fortune_type} : 오늘은 작은 기회라도 놓치지 않는다면 예상 밖의 도움이 들어올 수 있는 날이에요."
 
 
+def get_latest_fortune_video_id(youtube) -> Optional[str]:
+    """인증된 채널의 업로드 목록에서 제목에 '운세'가 들어간 가장 최신 영상 ID를 반환."""
+    try:
+        ch = youtube.channels().list(part="contentDetails", mine=True).execute()
+        items = ch.get("items", [])
+        if not items:
+            return None
+        uploads_id = (
+            items[0].get("contentDetails", {}).get("relatedPlaylists", {}).get("uploads")
+        )
+        if not uploads_id:
+            return None
+        resp = (
+            youtube.playlistItems()
+            .list(part="snippet", playlistId=uploads_id, maxResults=50)
+            .execute()
+        )
+        for item in resp.get("items", []):
+            title = (item.get("snippet", {}).get("title") or "")
+            if "운세" in title:
+                vid = item.get("snippet", {}).get("resourceId", {}).get("videoId")
+                if vid:
+                    return vid
+        return None
+    except Exception as e:
+        print(f"⚠️ 채널 최신 운세 영상 조회 실패: {e}")
+        return None
+
+
 def _list_recent_top_level_comments(
     youtube, video_id: str, max_results: int = 100
 ) -> List[Dict]:
@@ -151,11 +180,14 @@ def _list_recent_top_level_comments(
     return results
 
 
-def reply_to_comments_for_video(video_id: str, max_replies: int = 15) -> None:
+def reply_to_comments_for_video(
+    video_id: str, max_replies: int = 15, youtube=None
+) -> None:
     """지정한 영상에 달린 댓글 중 아직 응답하지 않은 것들을 대상으로 최대 max_replies명에게 자동 답글."""
     _init_reply_db()
-    creds = authenticate_youtube()
-    youtube = build("youtube", "v3", credentials=creds)
+    if youtube is None:
+        creds = authenticate_youtube()
+        youtube = build("youtube", "v3", credentials=creds)
 
     comments = _list_recent_top_level_comments(youtube, video_id, max_results=100)
     candidates = []
@@ -193,8 +225,20 @@ def reply_to_comments_for_video(video_id: str, max_replies: int = 15) -> None:
 
 
 if __name__ == "__main__":
-    target_video_id = os.getenv("YOUTUBE_REPLY_VIDEO_ID", "").strip()
+    creds = authenticate_youtube()
+    youtube = build("youtube", "v3", credentials=creds)
+
+    # 1) 채널에서 제목에 '운세'가 들어간 가장 최신 영상 사용 (새로 올린 숏츠에 자동으로 답글)
+    target_video_id = get_latest_fortune_video_id(youtube)
+    if target_video_id:
+        print(f"📌 대상 영상: 채널 최신 운세 숏츠 (자동 선택)")
     if not target_video_id:
-        print("⚠️ 환경변수 YOUTUBE_REPLY_VIDEO_ID 가 설정되어 있지 않습니다.")
+        # 2) 없으면 예전처럼 시크릿에 지정한 영상 ID 사용
+        target_video_id = os.getenv("YOUTUBE_REPLY_VIDEO_ID", "").strip()
+        if target_video_id:
+            print("📌 대상 영상: YOUTUBE_REPLY_VIDEO_ID (시크릿)")
+
+    if not target_video_id:
+        print("⚠️ 운세 영상을 찾을 수 없고 YOUTUBE_REPLY_VIDEO_ID 도 없습니다.")
     else:
-        reply_to_comments_for_video(target_video_id, max_replies=15)
+        reply_to_comments_for_video(target_video_id, max_replies=15, youtube=youtube)
