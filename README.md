@@ -16,11 +16,11 @@ FortuneShorts/
 │   └── config.toml           # Streamlit 한글/테마 설정
 ├── modules/
 │   ├── __init__.py
-│   ├── puzzle_creator.py     # 퍼즐 조각 마스크 (하트/별/달/클로버)
-│   ├── video_generator.py   # 영상 생성 (MoviePy)
-│   ├── metadata_generator.py # 제목/설명/해시태그 (GPT)
-│   ├── thumbnail_creator.py # 썸네일 생성
-│   └── youtube_uploader.py   # YouTube API 업로드
+│   ├── tarot_video_generator.py  # 타로 영상 생성 (9장 카드, 셔플)
+│   ├── tarot_deck.py, tarot_meanings.py, shuffle_styles.py
+│   ├── metadata_generator.py     # 제목/설명/해시태그 (GPT)
+│   ├── thumbnail_creator.py     # 썸네일 생성
+│   └── youtube_uploader.py      # YouTube API 업로드
 ├── assets/
 │   ├── fonts/
 │   │   └── NanumGothicBold.ttf   # 한글 폰트 (필수)
@@ -117,8 +117,8 @@ streamlit run app.py
 
 ## 📖 사용 흐름
 
-1. **영상 생성**  
-   배경 테마, 퍼즐 모양/방향, 운세 종류 선택 후 **영상 생성하기** 클릭.
+1. **타로 영상 생성**  
+   `타로덱_다운로드.bat`으로 덱 다운로드 후, 배경 테마·운세 종류 선택 → **타로 영상 생성하기** 클릭.
 2. **미리보기 & 승인**  
    재생해 본 뒤 **마음에 들어요!** 로 승인.
 3. **메타데이터**  
@@ -134,18 +134,21 @@ streamlit run app.py
 
 - [ ] 한글이 콘솔/로그에 정상 표시
 - [ ] 이미지/영상에 한글 폰트 정상 렌더링
-- [ ] 퍼즐 4가지 모양(하트/별/달/클로버) 정상
-- [ ] 4가지 방향 애니메이션 정상
-- [ ] 운세 화면 0.15초 표시
+- [ ] 타로 덱 다운로드 (타로덱_다운로드.bat)
+- [ ] 9장 카드 + 셔플 + 의미 표시
 - [ ] 메타데이터 한국어 자연스러움
 - [ ] 썸네일 한글 표시
 - [ ] YouTube 업로드 성공
 - [ ] 예약 업로드 동작
 - [ ] 업로드 내역 DB 저장/조회
 
+## 🔜 예정
+
+- **별자리운세 숏츠**, **띠별 운세 숏츠** 탭 추가 예정
+
 ## ⚠️ 주의사항
 
-- **필수 파일**: `NanumGothicBold.ttf`, `client_secrets.json`, `.env`, 배경 이미지 4개
+- **필수 파일**: `NanumGothicBold.ttf`, `client_secrets.json`, `.env`, 타로 덱(타로덱_다운로드.bat)
 - **OpenAI**: 사용량에 따라 요금 발생
 - **YouTube Data API**: 일일 할당량 약 10,000 units (업로드 1회 약 1,600 units)
 

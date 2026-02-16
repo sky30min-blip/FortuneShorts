@@ -5,9 +5,8 @@ from pathlib import Path
 from datetime import datetime
 
 import config
-from modules.video_generator import generate_fortune_video
+from modules.tarot_video_generator import generate_tarot_video
 from modules.metadata_generator import (
-    generate_fortune_text,
     generate_titles,
     generate_description,
     generate_hashtags,
@@ -47,41 +46,33 @@ def main():
     # 2) 배경 이미지 (이미지 폴더에서 랜덤)
     background_path = _pick_random_background()
 
-    # 3) 운세 3줄 생성
-    fortune_texts = {
-        "금전운": generate_fortune_text("금전운"),
-        "애정운": generate_fortune_text("애정운"),
-        "건강운": generate_fortune_text("건강운"),
-    }
+    # 3) 운세 종류 랜덤 선택
+    fortune_type = random.choice(["총운", "애정운", "금전운", "건강운"])
 
     # 4) 영상 파일 경로
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_path = config.OUTPUT_DIR / f"fortune_{timestamp}.mp4"
+    output_path = config.OUTPUT_DIR / f"tarot_{timestamp}.mp4"
 
-    # 5) 배경음악(있으면) 경로
-    music_path = config.MUSIC_DIR / "cheerful.mp3"
-    music_arg = str(music_path) if music_path.exists() else None
+    # 5) 배경음악(있으면) 랜덤 선택
+    music_arg = config.get_random_music_path()
 
-    # 6) 영상 생성
-    video_path = generate_fortune_video(
+    # 6) 타로 영상 생성
+    video_path, theme_name, metadata_extra = generate_tarot_video(
+        fortune_type=fortune_type,
         background_path=background_path,
-        puzzle_shape="퍼즐",
-        direction="위→아래",
-        fortune_texts=fortune_texts,
         music_path=music_arg,
         output_path=str(output_path),
     )
 
-    # 7) 메타데이터 자동 생성
-    fortune_type = "총운"
+    # 7) 메타데이터 자동 생성 (9장 카드 상세 설명 포함)
     titles = generate_titles(fortune_type, today)
     title = titles[0] if titles else f"🔮 {today} 오늘의 {fortune_type}"
-    description = generate_description(fortune_type, today)
+    description = generate_description(fortune_type, today, card_metadata=metadata_extra)
     tags = generate_hashtags(fortune_type)
 
     # 8) 유튜브 업로드 (썸네일 없이)
     result = upload_video(
-        video_path=str(video_path),
+        video_path=str(video_path) if isinstance(video_path, str) else str(video_path),
         title=title,
         description=description,
         tags=tags,

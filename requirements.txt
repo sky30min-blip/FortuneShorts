@@ -1,5 +1,7 @@
 # 운세 Shorts 자동 생성기 - 의존성
-streamlit==1.31.0
+# Python 3.14 호환 (pre-built wheel 사용, 소스 빌드 방지)
+streamlit>=1.40.0
+numpy>=2.0.0
 moviepy==1.0.3
 pillow>=10.2.0
 opencv-python>=4.9.0.80
